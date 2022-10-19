@@ -37,6 +37,63 @@ RSpec.describe UsersController, :type => :request do
         expect(response).to have_http_status(201)
       end
     end
+
+    context "irregular request" do
+      let(:email) { "test@sample1.co.jp" }
+      let(:first_name) { "taro" }
+      let(:last_name) { "test" }
+      let(:age) { 29 }
+      let(:params) {
+        {
+          user: {
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            age: age
+          }
+        }
+      }
+
+      context "not email" do
+        let(:email) { "test" }
+
+        it "success" do
+          post "/companies/#{company.id}/users", params: params
+
+          expect(response).to have_http_status(400)
+        end
+      end
+
+      context "first_name is 51 length." do
+        let(:first_name) { "123456789012345678901234567890123456789012345678901" }
+
+        it "success" do
+          post "/companies/#{company.id}/users", params: params
+
+          expect(response).to have_http_status(400)
+        end
+      end
+
+      context "last_name is 51 length." do
+        let(:last_name) { "123456789012345678901234567890123456789012345678901" }
+
+        it "success" do
+          post "/companies/#{company.id}/users", params: params
+
+          expect(response).to have_http_status(400)
+        end
+      end
+
+      context "Under 18 years old" do
+        let(:age) { 17 }
+
+        it "success" do
+          post "/companies/#{company.id}/users", params: params
+
+          expect(response).to have_http_status(400)
+        end
+      end
+    end
   end
 
   describe "#update" do
@@ -59,6 +116,56 @@ RSpec.describe UsersController, :type => :request do
         patch "/companies/#{company.id}/users/#{user.id}", params: params
 
         expect(response).to have_http_status(204)
+      end
+    end
+
+    context "irregular request" do
+      let(:email) { "test@sample1.co.jp" }
+      let(:first_name) { "taro" }
+      let(:last_name) { "test" }
+      let(:age) { 29 }
+      let(:params) {
+        {
+          user: {
+            first_name: first_name,
+            last_name: last_name,
+            email: email,
+            age: age
+          }
+        }
+      }
+      let!(:user) {
+        create(:user, company_id: company.id)
+      }
+
+      context "first_name is 51 length." do
+        let(:first_name) { "123456789012345678901234567890123456789012345678901" }
+
+        it "success" do
+          patch "/companies/#{company.id}/users/#{user.id}", params: params
+
+          expect(response).to have_http_status(400)
+        end
+      end
+
+      context "last_name is 51 length." do
+        let(:last_name) { "123456789012345678901234567890123456789012345678901" }
+
+        it "success" do
+          patch "/companies/#{company.id}/users/#{user.id}", params: params
+
+          expect(response).to have_http_status(400)
+        end
+      end
+
+      context "Under 18 years old" do
+        let(:age) { 17 }
+
+        it "success" do
+          patch "/companies/#{company.id}/users/#{user.id}", params: params
+
+          expect(response).to have_http_status(400)
+        end
       end
     end
   end
